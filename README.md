@@ -9,12 +9,12 @@ The plan is to use Redis to power the memory portion of this. The reason for thi
 Currently the api is still being planned, but I have a pretty good idea of what I want it to look like. I am thinking that it should look something like this:
 
 - int create_document(string document_contents)
-- void insert(int document_id, int insertion_point, string insertion_contents, int parent_id)
-- void delete(int document_id, int start_of_range, int end_of_range, int parent_id)
+- void insert(int document_id, int insertion_point, string insertion_contents, int parent_id, int parent_machine_id)
+- void delete(int document_id, int start_of_range, int end_of_range, int parent_id, int parent_machine_id)
 - string get_document_string(int document_id)
 - string get_operations_buffer(int document_id, int start_id)
+- void update_document(string updated_document_contents)
 - string close_document(int document_id)
-- void document(string updated_document_contents)
 
 As of right now, it will be the developer's responsibility to pull the operations buffer for each client, but that will likely be added functionality in later versions.
 
