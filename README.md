@@ -20,3 +20,6 @@ As of right now, it will be the developer's responsibility to pull the operation
 
 ##Contributing
 Right now this is a personal project, and I want to bring this to version 1 by myself, but if you are interested in building a language wrapper for Otter, start an issue on this repository and we can start to discuss how this should be done.
+
+## License
+Otter is released under the [MIT License](http://www.opensource.org/licenses/MIT).
