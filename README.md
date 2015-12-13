@@ -1,4 +1,6 @@
 #Otter (the easy Collaboration engine)
+
+###Note: Otter is not yet ready for use and is still in development.
 This program is intended to make real-time collaboration easy. This is done with Operation Transformation, a technique through which operations are "transformed" according to the ones before them. This means that if we have two operations `delete(2)` and `insert(3,'a')` they will be transformed according to what is run before them. In this case when `insert` is run first, `delete` is unchanged, but if `delete` is run first, then `insert` must be changed so that it inserts one earlier.
 
 Otter is being built in C so that it runs, as the professionals put it, "super-duper" fast. This will allow the wrappers to simply make a call to the optimized C, and everything can run nice and fast. 
@@ -19,7 +21,7 @@ Currently the api is still being planned, but I have a pretty good idea of what 
 As of right now, it will be the developer's responsibility to pull the operations buffer for each client, but that will likely be added functionality in later versions.
 
 ##Contributing
-Right now this is a personal project, and I want to bring this to version 1 by myself, but if you are interested in building a language wrapper for Otter, start an issue on this repository and we can start to discuss how this should be done.
+Right now this is a personal project, and I want to bring this to version 1 by myself, but if you are interested in building a language wrapper, or the Javascript client, for Otter, start an issue on this repository and we can start to discuss how this should be done.
 
 ## License
 Otter is released under the [MIT License](http://www.opensource.org/licenses/MIT).
