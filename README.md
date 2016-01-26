@@ -3,9 +3,9 @@
 ###Note: Otter is not yet ready for use and is still in development. Any API methods currently implemented are open to change at any time.
 This program is intended to make real-time collaboration easy. This is done with Operation Transformation, a technique through which operations are "transformed" according to the ones before them. This means that if we have two operations `delete(2,3)` and `insert(3,'a')` they will be transformed according to what is run before them. In this case when `insert` is run first, `delete` is unchanged, but if `delete` is run first, then `insert` must be changed so that it inserts one earlier.
 
-Otter is being built in C so that it runs, as the professionals put it, "super-duper" fast. This will allow the wrappers to simply make a call to the optimized C, and everything can run nice and fast. 
+Otter is being built in Go so that it runs, as the professionals put it, "super-duper" fast. This will allow the wrappers to simply make a call to the optimized Go, and everything can run nice and fast. 
 
-The plan is to use Redis to power the memory portion of this. The reason for this is because Redis is robust, fast, and most importantly, fault tolerant. 
+The plan is to use Rabbitmq to power the memory portion of this. The reason for this is because Rabbitmq is robust, fast, and most importantly, fault tolerant. 
 
 ##API
 Currently the api is still being planned, but I have a pretty good idea of what I want it to look like. I am thinking that it should look something like this:
