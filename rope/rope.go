@@ -1,13 +1,11 @@
 package rope
 
-//import{}
-
 type Branch struct{
   parent *Branch
   left *Branch
   right *Branch
   contents string //Speed up may be possible by following the 4 byte multiplicity rule and replacing string with array
-  split uint //refers to the dividing index between the left and right node relative to the subtree where this branch is the root 
+  split uint //refers to the dividing index between the left and right node relative to the subtree where this branch is the root
   length uint
 }
 
@@ -83,16 +81,16 @@ func (b *Branch)shatter_to(index uint) *Branch {
   if(b.length > MAX_CONTENT_LENGTH && b.is_leaf()){
     var left_length uint
     left_length = b.length / 2
-    
+
     b.split_at(left_length)
-    
+
     //Go deeper
     if(index >= left_length){
       b.right.shatter_to(index - left_length)
     } else{
       b.left.shatter_to(index)
     }
-    
+
   } else if(!b.is_leaf()){
     if(index >= b.split){
       b.right.shatter_to(index - b.split)
@@ -107,31 +105,31 @@ func (b *Branch)insert(index uint, content string, length uint){
   if(b.length > MAX_CONTENT_LENGTH && b.is_leaf()){
     b.shatter_to(index)
   }
-  
+
   b.length += length
-  
+
   //Perform the insert
   if(!b.is_leaf()){
     if(index > b.split){
       b.right.insert(index - b.split, content)
-      
+
     }else if(index < b.split){
       b.split += length
       b.left.insert(index, content)
-      
+
     }else if(b.left.length > b.right.length){
       b.push_out_right()
       new_node = Branch{parent: b.right, length: length, is_leaf: true, b.contents: content}
       b.right.left = new_node
-      
+
       b.right.split += length
       b.right.length += length
-      
+
     }else{
       b.push_out_left()
       new_node = Branch{parent: b.left, length: length, is_leaf: true, b.contents: content}
       b.left.right = new_node
-      
+
       b.split += length
       b.left.length += length
     }
@@ -149,13 +147,13 @@ func (b *Branch)delete(index uint, length uint){//TODO: finish this
   if(length == 0){
     return
   }
-  
+
   if b.is_leaf(){
     b.remove_content(index, length)
   }else{
     var left_length uint = b.split - index
-    var right_length uint = length - left_length 
-    
+    var right_length uint = length - left_length
+
     if(left_length > 0){
       if(left_length == b.split){
         b.left.destroy()
@@ -165,7 +163,7 @@ func (b *Branch)delete(index uint, length uint){//TODO: finish this
       b.length -= left_length
       b.split -= left_length
     }
-    
+
     if(right_length > 0){
       if(right_length == b.length - b.split){
         b.right.destroy()
@@ -175,7 +173,7 @@ func (b *Branch)delete(index uint, length uint){//TODO: finish this
       b.length -= right_length
     }
   }
-  
+
   if !(b.has_left() && b.has_right()) {
     b.truncate()
   }
@@ -210,10 +208,10 @@ func (b *Branch)split_at(index uint){
   //Create new branches
   new_left := Branch{parent: b, length: index, is_leaf: true}
   new_right := Branch{parent: b, length: b.length - index, is_leaf: true}
-  
+
   new_left.contents = b.contents[0:index]
   new_right.contents = b.contents[index:b.length]
-  
+
   //Clean up old branch
   b.contents = "" // may be alright to change to nil, but I think i'll play it safe for now.
   b.left = new_left
@@ -236,15 +234,15 @@ func (b *Branch)truncate(){
     }else{
       child = b.right
     }
-    
+
     if(b.is_left()){
       parent.left = child
     }else{
       parent.right = child
     }
-    
+
     child.parent = parent
-    
+
     //Clean up afterwards
     b.left = nil
     b.right = nil
@@ -261,9 +259,7 @@ func (b *Branch)destroy(){
     if(b.has_right()){
       b.right.destroy()
       b.right = nil
-    }    
+    }
   }
   b.parent = nil
 }
-
-

@@ -1,54 +1,87 @@
-package main
+package otter
 
 import(
-  "net"
+  "github.com/gin-gonic/gin"
+  "github.com/gorilla/websocket"
+  "net/http"
   "strconv"
-  "os"
-  "time"
 )
 
-keychain := make(map[string]map[int]string)
-keychain := make(map[string]chan)
+var document_pool map[string]document // map[document_id]map[user_key]user
+var master_key string
+var edited chan string
 
-func start(port string){
-  port_num, err := strconv.Atoi(port)
-  if err != nil{
-    panic("Port must be a valid number between 1 and 65535 and must be free\n")
+func server(port int, main_key string){
+  master_key = main_key
+  document_pool = make(map[string]document)
+  edited = make(chan string)
+  router := gin.Default()
+
+  router.GET("/ws", func(c *gin.Context) {
+    websocket_handler(c.Writer, c.Request)
+  })
+
+  router.GET("/", func(c *gin.Context) {
+    c.String(http.StatusOK, "Otter Version %s", VERSION)
+  })
+
+  authorized := r.Group("/")
+  authorized.Use(server_authentication()){ //Server Authentication group
+
+    authorized.GET("/document/:id", get_document_endpoint)
+    authorized.POST("/document/:id/edit", post_document_endpoint)
+    authorized.DELETE("/document/:id/destroy", delete_document_endpoint)
+
+    authorized.GET("/document/:id/user/create", create_user_endpoint)
+    authorized.DELETE("/document/:id/user/destroy", delete_document_endpoint)
+
+    authorized.GET("/edited", get_edited_documents_endpoint)
   }
 
-  listener, err := net.ListenTCP("tcp", ":" + port)
-  if err != nil {
-    panic(err);
-  }
-  var buf bytes.Buffer
-  logger := log.New(&buf, "LOG: ", log.Ldate | log.Ltime)
+  router.Run(":" + strconv.Itoa(port))
+}
 
-  signals := make(chan os.Signal, 1)
-  signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-  for {
-    listener.SetDeadline(time.Now().Add(2 * time.Second))
-    conn, err := listener.Accept()
-    if err != nil {
+func server_authentication(){//gin middleware
+  return func(c *gin.Context){
+    key := c.Request.FormValue("key")
 
+    if key == "" {
+      respondWithError(401, "Key Required", c)
+      return
     }
-    go Handle(conn, logger)
+
+    if key != master_key) {
+      respondWithError(401, "Invalid Key", c)
+      return
+    }
+
+    c.Next()
   }
 }
 
-func handle(conn net.Conn, logger Logger){
-
-
-  logger.Printf("IP: %s    Authenticated: %s    Request: %s", )
-}
-
-func authenticate() bool{
+//Document Interactions
+func get_document_endpoint(c *gin.Context){
 
 }
 
-func generate_key() string{
-  //TODO: write key generation
+func post_document_endpoint(c *gin.Context){
+
 }
 
-func revoke_key(){
+func delete_document_endpoint(c *gin.Context){
+
+}
+
+//User Creation and Deletion
+func create_user_endpoint(c *gin.Context){
+
+}
+
+func delete_document_endpoint(c *gin.Context){
+
+}
+
+//Get a list of documents edited since last
+func get_edited_documents_endpoint(c *gin.Context){
 
 }
