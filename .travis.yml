@@ -1,5 +1,5 @@
 language: go
+go_import_path: github.com/theaustinseven/otter
 go:
   - tip
-go_import_path: github.com/theaustinseven/otter
 script: go test
