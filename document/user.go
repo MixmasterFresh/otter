@@ -1,19 +1,19 @@
-package user
+package document
 
 import (
+	"net/http"
     "github.com/gorilla/websocket"
-	"otter/document"
 )
 
 // User represents the individual user as they pertain to documents
 type User struct {
 	id   string
-	document *document.Document
+	document *Document
 	conn *websocket.Conn
 }
 
 // NewUser creates a new user
-func NewUser(id string, document *document.Document) *User {
+func NewUser(id string, document *Document) *User {
 	user := new(User)
 	user.id = id
 	user.document = document

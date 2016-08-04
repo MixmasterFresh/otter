@@ -1,4 +1,4 @@
-package user
+package document
 
 import (
 	"fmt"
@@ -11,10 +11,10 @@ var wsupgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func websocketCreator(w http.ResponseWriter, r *http.Request) *websocket.Conn {
+func websocketCreator(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("Failed to set websocket upgrade: %s\n", err.Error())
+		fmt.Printf("Failed to set websocket upgrade: %s\n", err.Error())
 		return
 	}
 

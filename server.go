@@ -5,23 +5,24 @@ import (
 	"net/http"
 	"strconv"
 	"otter/document"
+	"fmt"
 )
 
-var documentPool map[string]Document // map[documentId]map[userKey]user
+var documentPool map[string]*document.Document // map[documentId]map[userKey]user
 var masterKey string
 var edited chan string
 
 func server(port int, mainKey string) {
 	masterKey = mainKey
-	documentPool = make(map[string]Document)
+	documentPool = make(map[string]*document.Document)
 	edited = make(chan string, 10000)
 	router := gin.Default()
 
 	router.GET("/ws", func(c *gin.Context) {
-		person, authorized := identifyAndAuthorizeUser(c)
-		if authorized {
-			person.openConnection(c.Writer, c.Request)
-		}
+		// person, authorized := identifyAndAuthorizeUser(c)
+		// if authorized {
+		// 	person.openConnection(c.Writer, c.Request)
+		// }
 	})
 
 	router.GET("/", func(c *gin.Context) {
@@ -73,7 +74,8 @@ func getDocumentEndpoint(c *gin.Context) {
 		notFound(c)
 		return
 	}
-	contents := document.getString()
+	contents := document.GetString()
+	fmt.Println(contents)
 	//JSON
 }
 
@@ -84,13 +86,14 @@ func getDocumentMetadataEndpoint(c *gin.Context) {
 		notFound(c)
 		return
 	}
-	data := document.getMetadata()
+	data := document.GetMetadata()
+	fmt.Println(data["length"])
 	//JSON
 }
 
 func createDocumentEndpoint(c *gin.Context) {
 	name := c.Param("id")
-	document, present := documentPool[name]
+	_, present := documentPool[name]
 	if present {
 		//JSON with 409:Conflict
 		return
@@ -102,7 +105,7 @@ func createDocumentEndpoint(c *gin.Context) {
 
 func editDocumentEndpoint(c *gin.Context) {
 	name := c.Param("id")
-	document, present := documentPool[name]
+	_, present := documentPool[name]
 	if !present {
 		notFound(c)
 		return
@@ -114,7 +117,7 @@ func editDocumentEndpoint(c *gin.Context) {
 
 func deleteDocumentEndpoint(c *gin.Context) {
 	name := c.Param("id")
-	document, present := documentPool[name]
+	_, present := documentPool[name]
 	if !present {
 		notFound(c)
 		return
@@ -125,12 +128,20 @@ func deleteDocumentEndpoint(c *gin.Context) {
 //User Creation and Deletion
 func createUserEndpoint(c *gin.Context) {
 	name := c.Param("id")
-	document, present := documentPool[name]
+	_, present := documentPool[name]
+	if !present {
+		notFound(c)
+		return
+	}
 }
 
 func deleteUserEndpoint(c *gin.Context) {
 	name := c.Param("id")
-	document, present := documentPool[name]
+	_, present := documentPool[name]
+	if !present {
+		notFound(c)
+		return
+	}
 }
 
 //Get a list of documents edited since last
@@ -146,6 +157,6 @@ func respondWithError(status int, message string, c *gin.Context) {
 
 }
 
-func identifyAndAuthorizeUser(c *gin.Context) (person *user.User, authorized bool) {
+// func identifyAndAuthorizeUser(c *gin.Context) (person *document.User, authorized bool) {
 
-}
+// }

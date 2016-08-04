@@ -4,12 +4,11 @@ import (
 	"strconv"
 	"otter/document/rope"
 	"otter/operation"
-	"otter/user"
 )
 
 // Document represents the individual documents uploaded to Otter
 type Document struct {
-	users          map[string]*user.User
+	users          map[string]*User
 	operations     chan *operation.Operation
 	contents       *rope.Rope
 	InEditedList   bool
@@ -21,15 +20,17 @@ func NewDocument(contents string) *Document{
 	document.contents = rope.NewRope(contents)
 	document.operations = make(chan *operation.Operation, 64)
 	document.InEditedList = false;
-	document.users = make(map[string]*user.User)
+	document.users = make(map[string]*User)
 	return document
 }
 
-func (document *Document) getString() string{
+// GetString returns contents as a string
+func (document *Document) GetString() string{
 	return document.contents.ToString()
 }
 
-func (document *Document) getMetadata() map[string]string{
+// GetMetadata returns a map of metadata
+func (document *Document) GetMetadata() map[string]string{
 	data := make(map[string]string)
 	length := document.contents.Size()
 	data["length"] = strconv.Itoa(length)
