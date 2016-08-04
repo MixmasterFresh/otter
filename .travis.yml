@@ -1,5 +1,5 @@
 go_import_path: github.com/theaustinseven/otter
 language: go
 go:
-  - tip
+  - 1.6.3
 script: go test
