@@ -2,8 +2,8 @@ package document
 
 import (
 	"strconv"
-	"otter/document/rope"
-	"otter/operation"
+	"github.com/TheAustinSeven/otter/document/rope"
+	"github.com/TheAustinSeven/otter/operation"
 )
 
 // Document represents the individual documents uploaded to Otter
