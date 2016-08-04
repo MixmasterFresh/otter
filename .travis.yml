@@ -1,8 +1,4 @@
-go_import_path: github.com/theaustinseven/otter
+go_import_path: github.com/TheAustinSeven/otter
 language: go
-go:
-  - 1.6.3
-install:
-    - go get -u -v $(go list -f '{{join .Imports "\n"}}' ./... | sort | uniq | grep -v golang-samples)
-
+go: 1.6.3
 script: go test
