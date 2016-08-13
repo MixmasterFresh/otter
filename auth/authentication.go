@@ -9,6 +9,7 @@ var masterKey string
 // Initialize collects and sets all initial variables
 func Initialize(key string) {
 	masterKey = key
+	startKeyGeneration()
 }
 
 // ServerAuthentication authenticates the server via the X-Otter-Key
@@ -47,5 +48,5 @@ func NotFound(c *gin.Context) {
 
 // RespondWithError is for all other error responses
 func RespondWithError(status int, message string, c *gin.Context) {
-	//TODO: this
+	c.String(status, message)
 }
