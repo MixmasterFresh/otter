@@ -2,18 +2,20 @@ package document
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/TheAustinSeven/otter/auth"
 	"github.com/gorilla/websocket"
-	"net/http"
 )
 
 // User represents the individual user as they pertain to documents
 type User struct {
-	id       string
-	key      string
-	hasKey   bool
-	document *Document
-	conn     *websocket.Conn
+	id        string
+	key       string
+	hasKey    bool
+	document  *Document
+	conn      *websocket.Conn
+	sendQueue chan []byte
 }
 
 var wsupgrader = websocket.Upgrader{
@@ -27,6 +29,7 @@ func NewUser(id string, document *Document) *User {
 	user.id = id
 	user.key = auth.GenerateKey(32)
 	user.document = document
+	user.sendQueue = make(chan []byte, 100)
 	return user
 }
 
@@ -40,13 +43,17 @@ func (user *User) OpenConnection(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Failed to set websocket upgrade: %s\n", err.Error())
 		return
 	}
-	if user.authenticate(conn) {
-		user.conn = conn
-		user.hasKey = false
-	}
+
+	user.conn = conn
+	go user.read()
+	go user.write()
 }
 
-func (user *User) authenticate(conn *websocket.Conn) bool {
-	_, proposedKey, _ := conn.ReadMessage()
-	return string(proposedKey) == user.key
+func (user *User) ResetKey() string {
+	user.key = auth.GenerateKey(32)
+	return user.key
+}
+
+func (user *User) Authenticate(proposedKey string) bool {
+	return proposedKey == user.key
 }
