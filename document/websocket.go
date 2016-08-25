@@ -58,8 +58,9 @@ func (user *User) write() {
 }
 
 type message struct {
-	Event string          `json:"event"`
-	Data  json.RawMessage `json:"data"`
+	Event  string          `json:"event"`
+	UserId string          `json:"UserId"`
+	Data   json.RawMessage `json:"data"`
 }
 
 type insertion struct {
@@ -82,23 +83,23 @@ func (user *User) handleMessage(msg []byte) {
 	if err != nil {
 		return
 	}
+	user.document.broadcastToAllExcept(msg, user.id)
 	switch decodedMsg.Event {
 	case "insert":
 		var insertMsg insertion
 		err = json.Unmarshal(decodedMsg.Data, &insertMsg)
-		user.queueInsertion(insertMsg)
+		user.queueInsertion(insertMsg, msg)
 	case "delete":
 		var deleteMsg deletion
 		err = json.Unmarshal(decodedMsg.Data, &deleteMsg)
-		user.queueDeletion(deleteMsg)
+		user.queueDeletion(deleteMsg, msg)
 	}
+}
+
+func (user *User) queueInsertion(msg insertion, rawMsg []byte) {
 
 }
 
-func (user *User) queueInsertion(msg insertion) {
-
-}
-
-func (user *User) queueDeletion(msg deletion) {
+func (user *User) queueDeletion(msg deletion, rawMsg []byte) {
 
 }

@@ -1,23 +1,24 @@
 package document
 
 import (
-	"github.com/TheAustinSeven/otter/document/rope"
-	"github.com/TheAustinSeven/otter/operation"
 	"strconv"
 	"sync"
+
+	"github.com/TheAustinSeven/otter/document/rope"
+	"github.com/TheAustinSeven/otter/operation"
 )
 
 // Document represents the individual documents uploaded to Otter
 type Document struct {
-	users          map[string]*User
-	messages       chan *operation.Operation
-	operations     chan *operation.Operation
-	contents       *rope.Rope
-	inEditedList   bool
-	inEmptyList    bool
-	editsList      map[string]*Document
-	emptyList      map[string]*Document
-	mutex          sync.Mutex
+	users        map[string]*User
+	messages     chan *operation.Operation
+	operations   chan *operation.Operation
+	contents     *rope.Rope
+	inEditedList bool
+	inEmptyList  bool
+	editsList    map[string]*Document
+	emptyList    map[string]*Document
+	mutex        sync.Mutex
 }
 
 // NewDocument returns a document with the starting string and otherwise empty values
@@ -81,4 +82,12 @@ func (document *Document) listenForOperations() {
 		}
 	}
 	//Safely handle shutdown
+}
+
+func (document *Document) broadcastToAllExcept(msg []byte, id string) {
+	for userID, user := range document.users {
+		if userID != id {
+			user.sendQueue <- msg
+		}
+	}
 }
