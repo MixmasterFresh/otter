@@ -58,9 +58,9 @@ func (user *User) write() {
 }
 
 type message struct {
-	Event  string          `json:"event"`
-	UserId string          `json:"UserId"`
-	Data   json.RawMessage `json:"data"`
+	Event   string          `json:"event"`
+	EventId string          `json:"eventId"`
+	Data    json.RawMessage `json:"data"`
 }
 
 type insertion struct {
@@ -97,7 +97,7 @@ func (user *User) handleMessage(msg []byte) {
 }
 
 func (user *User) queueInsertion(msg insertion, rawMsg []byte) {
-
+	
 }
 
 func (user *User) queueDeletion(msg deletion, rawMsg []byte) {

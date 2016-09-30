@@ -2,11 +2,12 @@ package otter
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/TheAustinSeven/otter/auth"
 	"github.com/TheAustinSeven/otter/document"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 var documentPool map[string]*document.Document // map[documentId]map[userKey]user
@@ -28,7 +29,7 @@ func server(port int, mainKey string) {
 	})
 
 	authorized := router.Group("/")
-	authorized.Use(serverAuthentication())
+	authorized.Use(auth.ServerAuthentication())
 	{ //Server Authentication group
 		authorized.GET("/document/:id", getDocumentEndpoint)
 		authorized.GET("/document/:id/meta", getDocumentMetadataEndpoint)
