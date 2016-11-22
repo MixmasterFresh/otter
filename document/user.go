@@ -57,3 +57,7 @@ func (user *User) ResetKey() string {
 func (user *User) Authenticate(proposedKey string) bool {
 	return proposedKey == user.key
 }
+
+func (user *User) CreateCookie() *http.Cookie {
+
+}

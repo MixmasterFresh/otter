@@ -19,8 +19,14 @@ func server(port int, mainKey string) {
 	edited = make(chan string, 10000)
 	router := gin.Default()
 
-	router.GET("/ws/:id/:userId", func(c *gin.Context) {
+	router.GET("/cookie/:id/:userId", func(c *gin.Context) {
 		person := identifyUser(c)
+		cookie := person.CreateCookie()
+		http.SetCookie(gin.Context.Writer, &http.Cookie) 
+	})
+
+	router.GET("/ws/:document", func(c *gin.Context) {
+		person := identifyUserByCookie(c)
 		person.OpenConnection(c.Writer, c.Request)
 	})
 
@@ -139,5 +145,9 @@ func getEmptyDocumentsEndpoint(c *gin.Context) {
 }
 
 func identifyUser(c *gin.Context) *document.User {
+	//TODO: this
+}
+
+func identifyUserByCookie(c *gin.Context) *document.User {
 	//TODO: this
 }
