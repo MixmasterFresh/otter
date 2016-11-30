@@ -3,6 +3,7 @@ package auth
 import(
     "time"
     "math/rand"
+    "sync"
 )
 
 const (
@@ -13,23 +14,48 @@ const (
 )
 
 var random64 chan int64
-var goroutineCount int
-var mutex chan bool
+// var mutex chan bool
+var table map[int]chan string
+var mutex sync.Mutex
 
-func startKeyGeneration() {
+func StartRandomGeneration() {
     random64 = make(chan int64, 1024)
-    mutex = make(chan bool)
-    mutex <- true
+    // mutex = make(chan bool)
+    // mutex <- true
+    table = make(map[int]chan string)
     go generateRandoms()
 }
 
-// GenerateKey generates a random key of a given length
-func GenerateKey(n int) string {
+func StartKeyGeneration(n int) {
+    _, ok := table[n]
+    if !ok {
+        table[n] = make(chan string, 1024)
+    }
+    go continuouslyGenerateKeys(n)
+}
+
+func continuouslyGenerateKeys(n int) {
+    for ;true; {
+        table[n] <- generateKey(n)
+    }
+}
+
+func GetKey(n int) string {
+    entry, ok := table[n]
+    if !ok {
+        return generateKey(n)
+    }
+    return <-entry
+}
+
+// generateKey generates a random key of a given length
+func generateKey(n int) string {
     b := make([]byte, n)
     // A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-    for i, cache, remain := n-1, getRandom63(), letterIdxMax; i >= 0; i-- {
+    for i, cache, remain := n-1, <-random64, letterIdxMax; i >= 0; i-- {
         if remain == 0 {
-            cache, remain = getRandom63(), letterIdxMax
+            // cache, remain = getRandom63(), letterIdxMax
+            cache, remain = <-random64, letterIdxMax
         }
         idx := int(cache & letterIdxMask)
         b[i] = letterBytes[idx]
@@ -40,24 +66,27 @@ func GenerateKey(n int) string {
     return string(b)
 }
 
-func getRandom63() int64 {
-    select {
-    case random := <- random64:
-        return random
-    default:
-        select {
-            case <- mutex:
-                go generateRandoms()
-                time.Sleep(10 * time.Millisecond)
-                mutex <- true
-                return <- random64
-            default:
-                return <- random64
-        }
-    }
-}
+
+// func getRandom63() int64 {
+//     select {
+//     case random := <- random64:
+//         return random
+//     default:
+//         select {
+//             case <- mutex:
+//                 go generateRandoms()
+//                 time.Sleep(10 * time.Millisecond)
+//                 mutex <- true
+//                 return <- random64
+//             default:
+//                 return <- random64
+//         }
+//     }
+// }
 
 func generateRandoms() {
+    mutex.Lock()
+    defer mutex.Unlock()
     var src = rand.NewSource(time.Now().UnixNano())
     for {
         random64 <- src.Int63()

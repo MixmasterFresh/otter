@@ -9,7 +9,8 @@ var masterKey string
 // Initialize collects and sets all initial variables
 func Initialize(key string) {
 	masterKey = key
-	startKeyGeneration()
+	StartRandomGeneration()
+	StartKeyGeneration(32)
 }
 
 // ServerAuthentication authenticates the server via the X-Otter-Key

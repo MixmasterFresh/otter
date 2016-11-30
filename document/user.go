@@ -16,6 +16,8 @@ type User struct {
 	document  *Document
 	conn      *websocket.Conn
 	sendQueue chan []byte
+	history	  map[string]string
+	currentOp string
 }
 
 var wsupgrader = websocket.Upgrader{
@@ -50,7 +52,7 @@ func (user *User) OpenConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func (user *User) ResetKey() string {
-	user.key = auth.GenerateKey(32)
+	user.key = auth.GetKey(32)
 	return user.key
 }
 
@@ -59,5 +61,9 @@ func (user *User) Authenticate(proposedKey string) bool {
 }
 
 func (user *User) CreateCookie() *http.Cookie {
+
+}
+
+func (user *User) updateHistory(id string, ancestors map[string]string ) {
 
 }

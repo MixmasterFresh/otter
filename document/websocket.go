@@ -59,22 +59,28 @@ func (user *User) write() {
 
 type message struct {
 	Event   string          `json:"event"`
-	EventId string          `json:"eventId"`
 	Data    json.RawMessage `json:"data"`
 }
 
 type insertion struct {
-	Id      string `json:"id"`
-	Index   int    `json:"index"`
-	Content string `json:"content"`
-	Parent  string `json:"parent"`
+	Id        string   			`json:"id"`
+	Index     int      			`json:"index"`
+	Content   string   			`json:"content"`
+	Parent    string   			`json:"parent"`
+	Ancestors map[string]string `json:"ancestors"`
 }
 
 type deletion struct {
-	Id     string `json:"id"`
-	Index  int    `json:"index"`
-	Length int    `json:"length"`
-	Parent string `json:"parent"`
+	Id        string   `json:"id"`
+	Index     int      `json:"index"`
+	Length    int      `json:"length"`
+	Parent    string   `json:"parent"`
+	Ancestors map[string]string `json:"ancestors"`
+}
+
+type notifier struct {
+	Id        string   `json:"id"`
+	Ancestors map[string]string `json:"ancestors"`
 }
 
 func (user *User) handleMessage(msg []byte) {
@@ -88,11 +94,18 @@ func (user *User) handleMessage(msg []byte) {
 	case "insert":
 		var insertMsg insertion
 		err = json.Unmarshal(decodedMsg.Data, &insertMsg)
+		if err {
+			
+		}
 		user.queueInsertion(insertMsg, msg)
 	case "delete":
 		var deleteMsg deletion
 		err = json.Unmarshal(decodedMsg.Data, &deleteMsg)
 		user.queueDeletion(deleteMsg, msg)
+	case "notifier":
+		var notifierMsg notifier
+		err = json.Unmarshal(decodedMsg.Data, &notifierMsg)	
+		user.updateHistory(notifier.Id, notifier.Ancestors)
 	}
 }
 

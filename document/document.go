@@ -19,6 +19,7 @@ type Document struct {
 	editsList    map[string]*Document
 	emptyList    map[string]*Document
 	mutex        sync.Mutex
+	history	     map[string]string
 }
 
 // NewDocument returns a document with the starting string and otherwise empty values
