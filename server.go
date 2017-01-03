@@ -63,7 +63,6 @@ func getDocumentEndpoint(c *gin.Context) {
 		return
 	}
 	contents := document.GetString()
-	fmt.Println(contents)
 	//TODO: this
 }
 
@@ -75,7 +74,6 @@ func getDocumentMetadataEndpoint(c *gin.Context) {
 		return
 	}
 	data := document.GetMetadata()
-	fmt.Println(data["length"])
 	//TODO: this
 }
 
@@ -83,7 +81,7 @@ func createDocumentEndpoint(c *gin.Context) {
 	name := c.Param("id")
 	_, present := documentPool[name]
 	if present {
-		//JSON with 409:Conflict
+		auth.Conflict(c,"That document already exists.")
 		return
 	}
 	//extract document from incoming JSON

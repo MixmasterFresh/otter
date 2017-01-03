@@ -47,6 +47,10 @@ func NotFound(c *gin.Context) {
 	RespondWithError(404, "Not Found", c)
 }
 
+func Conflict(c *gin.Context, msg string) {
+	RespondWithError(409, "Conflict: " + msg, c)
+}
+
 // RespondWithError is for all other error responses
 func RespondWithError(status int, message string, c *gin.Context) {
 	c.String(status, message)

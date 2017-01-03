@@ -3,7 +3,7 @@ package document
 import (
 	"encoding/json"
 	"time"
-
+	"github.com/TheAustinSeven/otter/operation"
 	"github.com/gorilla/websocket"
 )
 
@@ -89,30 +89,52 @@ func (user *User) handleMessage(msg []byte) {
 	if err != nil {
 		return
 	}
-	user.document.broadcastToAllExcept(msg, user.id)
 	switch decodedMsg.Event {
 	case "insert":
 		var insertMsg insertion
 		err = json.Unmarshal(decodedMsg.Data, &insertMsg)
-		if err {
-			
+		if err != nil {
+			//log an error and write an error back
 		}
 		user.queueInsertion(insertMsg, msg)
 	case "delete":
 		var deleteMsg deletion
 		err = json.Unmarshal(decodedMsg.Data, &deleteMsg)
+		if err != nil {
+			//log an error and write an error back
+		}
 		user.queueDeletion(deleteMsg, msg)
 	case "notifier":
 		var notifierMsg notifier
 		err = json.Unmarshal(decodedMsg.Data, &notifierMsg)	
-		user.updateHistory(notifier.Id, notifier.Ancestors)
+		if err != nil {
+			//log an error and write an error back
+		}
+		user.updateHistory(notifierMsg.Id, notifierMsg.Ancestors)
 	}
 }
 
 func (user *User) queueInsertion(msg insertion, rawMsg []byte) {
-	
+	op := operation.Operation{
+		Id: msg.Id,
+		Author: user.id,
+		Format: operation.INSERT,
+		Index: msg.Index,
+		Length: len(msg.Content),
+		Contents: msg.Content,
+		Ancestors: msg.Ancestors,
+	}
+
+	//do something with ancestors to close the trees if possible. Broadcast to all except...
 }
 
 func (user *User) queueDeletion(msg deletion, rawMsg []byte) {
-
+	op := operation.Operation{
+		Id: msg.Id,
+		Author: user.id,
+		Format: operation.INSERT,
+		Index: msg.Index,
+		Length: msg.Length,
+		Ancestors: msg.Ancestors,
+	}
 }
