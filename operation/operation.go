@@ -4,10 +4,10 @@ import ()
 
 type OperationCollection struct {
 	Operations map[string]*Operation
-	histories  map[string]*AuthorTree
+	histories  map[string]*AuthorQueue
 }
 
-type AuthorTree struct {
+type AuthorQueue struct {
 	userId string
 	list *OperationList
 }
