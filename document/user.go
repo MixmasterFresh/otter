@@ -29,7 +29,7 @@ var wsupgrader = websocket.Upgrader{
 func NewUser(id string, document *Document) *User {
 	user := new(User)
 	user.id = id
-	user.key = auth.GenerateKey(32)
+	user.key = auth.GetKey(32)
 	user.document = document
 	user.sendQueue = make(chan []byte, 100)
 	return user

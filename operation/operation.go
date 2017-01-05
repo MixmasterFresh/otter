@@ -3,8 +3,10 @@ package operation
 import ()
 
 type OperationCollection struct {
-	Operations map[string]*Operation
+	newOperations *operationBuffer
 	histories  map[string]*AuthorQueue
+	block chan bool
+	processedOperations chan *Operation
 }
 
 type AuthorQueue struct {
@@ -14,13 +16,13 @@ type AuthorQueue struct {
 
 // Operation represents the operation being performed
 type Operation struct {
-	Id        string
+	Id        int
 	Author	  string
 	Format    int
 	Index     int
 	Length    int
 	Contents  string
-	Ancestors map[string]string
+	Ancestors map[string][]int
 }
 
 const (//Due to the fact that go has... shortcomings, this is the way to represent enums. *shakes fist*
@@ -29,17 +31,54 @@ const (//Due to the fact that go has... shortcomings, this is the way to represe
 	DELETE = iota
 )
 
-func (store *OperationCollection) Push(op *Operation){
+func newOperationCollection() *OperationCollection {
+	store := &OperationCollection{}
+	store.newOperations = &operationBuffer{}
+	store.newOperations.init()
+	store.histories = make(map[string]*AuthorQueue)
+	store.block = make(chan bool)
+	store.processedOperations = make(chan *Operation, 100)
+	go store.processOperations()
+	return store
+}
 
+func (store *OperationCollection) Close() {
+}
+
+func (store *OperationCollection) Push(op *Operation){
+	store.newOperations.push(op)
+	select { case <- store.block: } //do nothing. We are just allowing the channel to send again
 } 
 
-func (store *OperationCollection) Next() *Operation {
-	//Collect next 
+func (store *OperationCollection) processOperations() {
+	var op *Operation
+	for ; true ; {
+		for op = store.newOperations.pop(); op == nil; op = store.newOperations.pop() {
+			store.block <- true//potentially more complex check to aid in closing
+		}
+		newOps := store.histories[op.Author].list.transformOverList(*op, op.Ancestors)
+		store.addToAllExcept(op.Author, newOps)
+		for _,finalOp := range newOps {
+			store.processedOperations <- &finalOp
+		}
+	}
+}
+
+func (store *OperationCollection) Pop() *Operation {
+	for op := range store.processedOperations {
+		return op
+	}
 	return nil
 }
 
-func (store *OperationCollection) Cleanup() {
-
+func (store *OperationCollection) addToAllExcept(author string, ops []Operation) {
+	for key, history := range store.histories {
+		if key != author {
+			for _, op := range ops {
+				history.list.insertOperation(op.simplify())
+			}
+		}
+	}
 }
 
 func (store *OperationCollection) AddOperation() {

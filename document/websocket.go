@@ -59,28 +59,30 @@ func (user *User) write() {
 
 type message struct {
 	Event   string          `json:"event"`
+	User	string			`json:"user"`
 	Data    json.RawMessage `json:"data"`
 }
 
 type insertion struct {
-	Id        string   			`json:"id"`
+	Id        int   			`json:"id"`
 	Index     int      			`json:"index"`
 	Content   string   			`json:"content"`
 	Parent    string   			`json:"parent"`
-	Ancestors map[string]string `json:"ancestors"`
+	Ancestors map[string][]int `json:"ancestors"`
 }
 
 type deletion struct {
-	Id        string   `json:"id"`
+	Id        int   `json:"id"`
 	Index     int      `json:"index"`
 	Length    int      `json:"length"`
 	Parent    string   `json:"parent"`
-	Ancestors map[string]string `json:"ancestors"`
+	Ancestors map[string][]int `json:"ancestors"`
 }
 
 type notifier struct {
-	Id        string   `json:"id"`
-	Ancestors map[string]string `json:"ancestors"`
+	Id        int   `json:"id"`
+	Index     int      `json:"index"`
+	Ancestors map[string][]int `json:"ancestors"`
 }
 
 func (user *User) handleMessage(msg []byte) {
@@ -88,6 +90,10 @@ func (user *User) handleMessage(msg []byte) {
 	err := json.Unmarshal(msg, &decodedMsg)
 	if err != nil {
 		return
+	}else if decodedMsg.User != user.id {
+		return
+	}else{
+		//rebroadcast
 	}
 	switch decodedMsg.Event {
 	case "insert":
@@ -110,7 +116,7 @@ func (user *User) handleMessage(msg []byte) {
 		if err != nil {
 			//log an error and write an error back
 		}
-		user.updateHistory(notifierMsg.Id, notifierMsg.Ancestors)
+		user.queueNotifier(notifierMsg, msg)
 	}
 }
 
@@ -135,6 +141,17 @@ func (user *User) queueDeletion(msg deletion, rawMsg []byte) {
 		Format: operation.INSERT,
 		Index: msg.Index,
 		Length: msg.Length,
+		Ancestors: msg.Ancestors,
+	}
+}
+
+func (user *User) queueNotifier(msg notifier, rawMsg []byte) {
+	op := operation.Operation{
+		Id: msg.Id,
+		Author: user.id,
+		Format: operation.NOTIFIER,
+		Index: msg.Index,
+		Length: 0,
 		Ancestors: msg.Ancestors,
 	}
 }

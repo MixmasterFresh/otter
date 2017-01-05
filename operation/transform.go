@@ -2,7 +2,7 @@ package operation
 
 import()
 
-func (first Operation) transform(second simpleOperation) []Operation {
+func (first Operation) transform(second *simpleOperation) []Operation {
     if second.format == INSERT {
         return first.transformWithInsert(second)
     }else if second.format == DELETE{
@@ -12,7 +12,7 @@ func (first Operation) transform(second simpleOperation) []Operation {
     }
 }
 
-func (first Operation) transformWithInsert(second simpleOperation) []Operation {
+func (first Operation) transformWithInsert(second *simpleOperation) []Operation {
     if second.index < first.Index {
         copy := first
         copy.Index += second.length
@@ -39,7 +39,7 @@ func (first Operation) transformWithInsert(second simpleOperation) []Operation {
     }
 }
 
-func (first Operation) transformDeleteWithInsert(second simpleOperation) []Operation {
+func (first Operation) transformDeleteWithInsert(second *simpleOperation) []Operation {
     if second.index > first.Index && second.index - first.Index < first.Length {
         pivot := second.index - first.Index
         half1 := first
@@ -54,7 +54,7 @@ func (first Operation) transformDeleteWithInsert(second simpleOperation) []Opera
     }
 }
 
-func (first Operation) transformWithDelete(second simpleOperation) []Operation {
+func (first Operation) transformWithDelete(second *simpleOperation) []Operation {
     if first.Format == DELETE {
         return first.transformDeleteWithDelete(second)
     }else{
@@ -71,7 +71,7 @@ func (first Operation) transformWithDelete(second simpleOperation) []Operation {
     }
 }
 
-func (first Operation) transformDeleteWithDelete(second simpleOperation) []Operation {
+func (first Operation) transformDeleteWithDelete(second *simpleOperation) []Operation {
     if first.Index > second.index && first.Index < second.index + second.length {
         if first.Length > second.length - (first.Index - second.index) {
             first.Length -= second.length - (first.Index - second.index)
