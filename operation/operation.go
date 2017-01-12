@@ -43,6 +43,7 @@ func newOperationCollection() *OperationCollection {
 }
 
 func (store *OperationCollection) Close() {
+	// To be implemented later
 }
 
 func (store *OperationCollection) Push(op *Operation){
@@ -52,7 +53,7 @@ func (store *OperationCollection) Push(op *Operation){
 
 func (store *OperationCollection) processOperations() {
 	var op *Operation
-	for ; true ; {
+	for {
 		for op = store.newOperations.pop(); op == nil; op = store.newOperations.pop() {
 			store.block <- true//potentially more complex check to aid in closing
 		}
@@ -65,10 +66,7 @@ func (store *OperationCollection) processOperations() {
 }
 
 func (store *OperationCollection) Pop() *Operation {
-	for op := range store.processedOperations {
-		return op
-	}
-	return nil
+	return <-store.processedOperations
 }
 
 func (store *OperationCollection) addToAllExcept(author string, ops []Operation) {
@@ -79,9 +77,5 @@ func (store *OperationCollection) addToAllExcept(author string, ops []Operation)
 			}
 		}
 	}
-}
-
-func (store *OperationCollection) AddOperation() {
-
 }
 

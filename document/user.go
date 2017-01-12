@@ -61,9 +61,5 @@ func (user *User) Authenticate(proposedKey string) bool {
 }
 
 func (user *User) CreateCookie() *http.Cookie {
-
-}
-
-func (user *User) updateHistory(id string, ancestors map[string]string ) {
-
+	
 }
